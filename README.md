@@ -7,31 +7,25 @@ Supports Keycloak v21.1.2 and Java 8.
 This project provides a custom User Storage Provider that allows Keycloak to authenticate and fetch users directly from an existing Sybase database.
 
 ## 🛠️ Build Instructions
-1. Clone the repository:
+- Clone the repository:
    ```bash
    git clone git@github.com:suraj-haptiq/keycloak-federationDB.git
    cd keycloak-federationDB
     ```
-2. Build the provider JAR:
+- Build the provider JAR:
     ```bash
     mvn clean package
    ```
-This generates: `target/keycloak-federationDB.jar.jar`
-3. Set Sybase Credentials:
-Contact drf-developers to obtain the Sybase development instance password.
-Update the Dockerfile:
-    ```bash
-    ENV KC_SYBASE_PASS="KC_SYBASE_PASS"
-   ```
-4. 🐳 Docker Instructions
-Build the Docker image:
-    ```bash
-    sudo docker build -t keycloak-sybase .
-   ```
-Run the Keycloak container:
- ```bash
-    bash sudo docker run -d -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin keycloak-sybase
-   ```
+
+- This generates: `target/keycloak-federationDB.jar.jar`
+
+- Set Sybase Credentials:
+  - Contact drf-developers to obtain the Sybase development instance password.
+  - Update the Dockerfile: `ENV KC_SYBASE_PASS="KC_SYBASE_PASS"`
+
+- 🐳 Docker Instructions
+  - Build the Docker image with: `sudo docker build -t keycloak-sybase .`
+  - Run the Keycloak container with: `bash sudo docker run -d -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin keycloak-sybase`
 
 When you run the built Docker image:
 1. Start Keycloak in detached mode (-d)
