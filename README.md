@@ -25,7 +25,7 @@ This project provides a custom User Storage Provider that allows Keycloak to aut
 
 - 🐳 Docker Instructions
   - Build the Docker image with: `sudo docker build -t keycloak-sybase .`
-  - Run the Keycloak container with: `bash sudo docker run -d -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin keycloak-sybase`
+  - Run the Keycloak container with: `sudo docker run -d -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin keycloak-sybase`
 
 When you run the built Docker image:
 1. Start Keycloak in detached mode (-d)
