@@ -1,9 +1,39 @@
-# Keycloak User Federation From Sybase Database
+# 🚀 Sybase User Federation Provider for Keycloak
 
-A simple example of creating custom User Federation module for keycloak. Tested on KeyCloak 11.0.2 with Java 8.
+Custom Keycloak User Federation implementation backed by a Sybase database
+Supports Keycloak v21.1.2 and Java 8.
 
-## Features
-- Can connect with existing database in any database (as long JDBC can connect to it)
-- Using Email as Login-name
-- Enter query to get password in existing database, based on email
-- Enter query to get several user attribute in existing database, based on email
+## ✨ Overview
+This project provides a custom User Storage Provider that allows Keycloak to authenticate and fetch users directly from an existing Sybase database.
+
+## 🛠️ Build Instructions
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:suraj-haptiq/keycloak-federationDB.git
+   cd keycloak-federationDB
+    ```
+2. Build the provider JAR:
+    ```bash
+    mvn clean package
+   ```
+This generates: `target/keycloak-federationDB.jar.jar`
+3. Set Sybase Credentials:
+Contact drf-developers to obtain the Sybase development instance password.
+Update the Dockerfile:
+    ```bash
+    ENV KC_SYBASE_PASS="KC_SYBASE_PASS"
+   ```
+4. 🐳 Docker Instructions
+Build the Docker image:
+    ```bash
+    sudo docker build -t keycloak-sybase .
+   ```
+Run the Keycloak container:
+ ```bash
+    bash sudo docker run -d -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin keycloak-sybase
+   ```
+
+When you run the built Docker image:
+1. Start Keycloak in detached mode (-d)
+2. Expose port 8080 so you can access Keycloak at http://localhost:8080/
+3. Create the Keycloak admin user with the provided username and password
