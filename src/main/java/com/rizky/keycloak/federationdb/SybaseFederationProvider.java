@@ -1,5 +1,7 @@
 package com.rizky.keycloak.federationdb;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -17,6 +19,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 public class SybaseFederationProvider implements UserStorageProvider,
     UserLookupProvider,
@@ -27,23 +31,22 @@ public class SybaseFederationProvider implements UserStorageProvider,
     private static final String QUERY_USER =
         "SELECT login_name, first_name FROM prod.prod_customers WHERE login_name = ?";
 
-    private static final String QUERY_PASSWORD =
-        "SELECT password FROM prod.prod_customers WHERE login_name = ?";
-
     private final KeycloakSession session;
     private final ComponentModel model;
     private final String jdbcUrl;
     private final String dbUser;
     private final String dbPass;
+    private final String entitlementRestServiceBaseUrl;
 
     public SybaseFederationProvider(KeycloakSession session, ComponentModel model, String jdbcUrl,
-        String dbUser, String dbPass) {
+        String dbUser, String dbPass, String entitlementRestServiceBaseUrl) {
         log.info("SybaseFederationProvider initialized with jdbcUrl: {}", jdbcUrl);
         this.session = session;
         this.model = model;
         this.jdbcUrl = jdbcUrl;
         this.dbUser = dbUser;
         this.dbPass = dbPass;
+        this.entitlementRestServiceBaseUrl = entitlementRestServiceBaseUrl;
     }
 
     @Override
@@ -144,22 +147,28 @@ public class SybaseFederationProvider implements UserStorageProvider,
 
         log.info("Password validation started for user: {}", username);
 
-        try (Connection conn = newConnection();
-            PreparedStatement ps = conn.prepareStatement(QUERY_PASSWORD)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    String stored = rs.getString("password");
-                    boolean match = stored != null && stored.equals(providedPassword);
-                    log.info("Password check for '{}' => {}", username, match ? "MATCH" : "NO MATCH");
-                    return match;
-                } else {
-                    log.warn("No password record found in DB for: {}", username);
+        try {
+            username = URLEncoder.encode(username, "UTF-8");
+            providedPassword = URLEncoder.encode(providedPassword, "UTF-8");
+
+            String url =
+                entitlementRestServiceBaseUrl + "/customer/validateLogin/1?loginName=" + username
+                    + "&password=" + providedPassword;
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<SimpleResponseType> validationEntity = restTemplate.getForEntity(url,
+                SimpleResponseType.class);
+            SimpleResponseType simpleResponseType = validationEntity.getBody();
+
+            if (simpleResponseType != null) {
+                int responseCode = simpleResponseType.getResponseCode();
+                String responseDescription = simpleResponseType.getResponseDescription();
+                if ((responseCode) == 0 && responseDescription.equalsIgnoreCase("OK")) {
+                    return true;
                 }
             }
-        } catch (SQLException e) {
-            log.error("Password validation failed for '{}': {}", username, e.getMessage(), e);
-            throw new RuntimeException("Sybase password check failed", e);
+        } catch (UnsupportedEncodingException ex) {
+            log.error("Encoding error for username '{}': {}", username, ex.getMessage(), ex);
         }
         return false;
     }

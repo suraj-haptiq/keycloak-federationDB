@@ -14,7 +14,7 @@ ENV KC_SYBASE_USER="memberCenter"
 # ❗ Contact drf-developers to get the correct KC_SYBASE_PASS value.
 ENV KC_SYBASE_PASS=""
 
-
+ENV KC_SYBASE_ENTITLEMENT_REST_SERVICE_BASE_URL="http://dnjhuappesvc01:8080/entitlements-rest-service"
 # Increase user storage provider timeout (default is 3000ms)
 ENV KC_SPI_USER_STORAGE_PROVIDER_TIMEOUT=10000
 
